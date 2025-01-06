@@ -96,7 +96,7 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          case: TK_NOTYPE: break;
+          case TK_NOTYPE: break;
           case TK_DECIMAL:
           case TK_HEXADECIMAL:
           case TK_REG:
@@ -246,6 +246,7 @@ int check_parentheses(int p,int q)
   int layer = 0;
   int res = 0;
   if(tokens[p].type != '(' || tokens[q].type != ')') return 0;
+  res = 1;
   for(int i = p + 1; i < q; i++)
   {
     if(tokens[i].type == '(') layer++;
@@ -253,7 +254,7 @@ int check_parentheses(int p,int q)
     if(layer < 0) return 0;
     if(layer == 0 && i != q) return 0;
   }
-  if(layer == 0) return 1;
+  return res;
 }
 
 uint32_t eval(int p,int q,bool *success)
@@ -317,7 +318,7 @@ uint32_t eval(int p,int q,bool *success)
       default:
         printf("\033[0;33m bad expression at [%d %d]\033[0m\n",p,q);
         *success = false;
-        return
+        return;
     }
   }
   return 0;
