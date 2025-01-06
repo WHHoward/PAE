@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   char str[65536];
   bool success = true;
   FILE *fp = fopen("tools/gen-expr/input","r");
-  while(fscanf(fp,"%d %s",&ans,str) != EOF)
+  while(fscanf(fp,"%d %s",&ans,str) == 2)
   {
     printf("ans = %d str = %s\n",ans,str);
     result = expr(str,&success);
