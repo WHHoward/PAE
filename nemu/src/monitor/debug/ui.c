@@ -8,7 +8,8 @@
 #include <readline/history.h>
 
 void cpu_exec(uint64_t);
-
+void display_watchpoints();
+void isa_reg_display();
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -37,7 +38,14 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_help(char *args);
-
+static int cmd_si(char *args);
+static int cmd_info(char *args);
+static int cmd_exp(char *args);
+static int cmd_scan(char *args);
+//set watchpoint
+static int cmd_setWatchPoints(char *args);
+//delete watchpoint
+static int cmd_delWatchPoints(char *args);
 static struct {
   char *name;
   char *description;
@@ -46,7 +54,12 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  { "si", "Single step execution", cmd_si },
+  { "info", "Print the information of registers or watchpoints", cmd_info },
+  { "x", "Scan the memory", cmd_scan },
+  { "p", "Expression evaluation", cmd_exp },
+  { "w", "Set watchpoints", cmd_setWatchPoints },
+  { "d", "Delete watchpoints", cmd_delWatchPoints },
   /* TODO: Add more commands */
 
 };
@@ -75,7 +88,106 @@ static int cmd_help(char *args) {
   }
   return 0;
 }
-
+static int cmd_si(char *args) {
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    cpu_exec(1);
+  }
+  else {
+    int n = 0;
+    for(int i = 0; i < strlen(args); i++) {
+      n = n * 10 + arg[i];
+    }
+    cpu_exec(n);
+  }
+  return 0;
+}
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("Please input the argument\n");
+    return 0;
+  }
+  if(strcmp(arg, "r") == 0) {
+    isa_reg_display();
+  }
+  else if(strcmp(arg, "w") == 0) {
+    display_watchpoints();
+  }
+  else {
+    printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
+static int cmd_exp(char *args) {
+  if(args == NULL) {
+    printf("Please input the expression\n");
+    return 0;
+  }
+  bool success = true;
+  uint32_t res = expr(args, &success);
+  if(success) {
+    printf("\033[0;32m %s = %d(%#x)\033[0m\n", args, res, res);
+  }
+  return 0;
+}
+static int cmd_scan(char *args) {
+  char *arg1 = strtok(NULL, " ");
+  char *arg2 = strtok(NULL, " ");
+  if(arg1 == NULL || arg2 == NULL) {
+    printf("Please input the arguments\n");
+    return 0;
+  }
+  bool success = true;
+  uint32_t n = expr(arg1, &success);
+  if(!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
+  uint32_t m = expr(arg2, &success);
+  if(!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
+  for(uint32_t i = 0; i < m; i++) {
+    if(i % 4 == 0) {
+      printf("\n");
+      printf("0x%08x: ", n + i);
+    }
+    printf("0x%08x ", vaddr_read(n + i, 4));
+  }
+  printf("\n");
+  return 0;
+}
+static int cmd_setWatchPoints(char *args) {
+/*  if(args == NULL) {
+    printf("Please input the expression\n");
+    return 0;
+  }
+  bool success = true;
+  uint32_t res = expr(args, &success);
+  if(success) {
+    WP *wp = new_wp();
+    wp->val = res;
+    printf("Set watchpoint %d at %s\n", wp->NO, args);
+  }
+ */ 
+  return 0;
+}
+static int cmd_delWatchPoints(char *args) {
+  /*
+  if(args == NULL) {
+    printf("Please input the watchpoint number\n");
+    return 0;
+  }
+  int n = 0;
+  for(int i = 0; i < strlen(args); i++) {
+    n = n * 10 + args[i];
+  }
+  free_wp(n);
+  */
+  return 0;
+}
 void ui_mainloop(int is_batch_mode) {
   if (is_batch_mode) {
     cmd_c(NULL);

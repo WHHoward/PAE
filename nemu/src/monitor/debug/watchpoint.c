@@ -19,5 +19,19 @@ void init_wp_pool() {
 }
 
 /* TODO: Implement the functionality of watchpoint */
-
+void display_watchpoints()
+{
+  WP *p = head;
+  if(p == NULL)
+  {
+    printf("No watchpoints\n");
+    return;
+  }
+  printf("Num\tWhat\n");
+  while(p != NULL)
+  {
+    printf("%d\t%s\n",p->NO,p->expr);
+    p = p->next;
+  }
+}
 
