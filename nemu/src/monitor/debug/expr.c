@@ -316,16 +316,16 @@ uint32_t eval(int p,int q,bool *success)
     if(*success == false) return 0;
     uint32_t val1 = 0;
     uint32_t val2 = 0;
-    if(tokens[op].type == TK_NOTEQ || tokens[op].type == TK_EQ || tokens[op].type == TK_AND || tokens[op].type == TK_OR || tokens[op].type == TK_LESSEQ || tokens[op].type == TK_GREATEREQ || tokens[op].type == TK_LESS || tokens[op].type == TK_GREATER)
+    if(tokens[op].type != TK_NEGNUM && tokens[op].type != TK_POSNUM && tokens[op].type != TK_DEFERENCE)
     {
       val1 = eval(p,op - 1,success);
       val2 = eval(op + 1,q,success);
     }
     else
     {
-      val1 = eval(p,op - 1,success);
       val2 = eval(op + 1,q,success);
     }
+    
     if(*success == false) return 0;
     switch(tokens[op].type)
     {
