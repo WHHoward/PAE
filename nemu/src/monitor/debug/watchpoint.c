@@ -93,14 +93,14 @@ bool check_wp()
   WP *p = head;
   bool success = true;
   int flag = 0;
-  printf("check_wp\n");
+//  printf("check_wp\n");
   while(p != NULL)
   {
     uint32_t val = expr(p->expr,&success);
-    printf("val = %u\n",val);
+//    printf("val = %u\n",val);
     if(val != p->val)
     {
-      printf("arrived\n");
+//      printf("arrived\n");
       printf("\033[0;33m Watchpoint %d: %s\n\033[0m",p->NO,p->expr);
       printf("\033[0;33m Old value = %u\n\033[0m",p->val);
       printf("\033[0;33m New value = %u\n\033[0m",val);
