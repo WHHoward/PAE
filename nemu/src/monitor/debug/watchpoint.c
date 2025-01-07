@@ -92,18 +92,22 @@ bool check_wp()
 {
   WP *p = head;
   bool success = true;
+  int flag = 0;
   while(p != NULL)
   {
     uint32_t val = expr(p->expr,&success);
     if(val != p->val)
     {
+      printf("arrived\n");
       printf("\033[0;33m Watchpoint %d: %s\n\033[0m",p->NO,p->expr);
       printf("\033[0;33m Old value = %u\n\033[0m",p->val);
       printf("\033[0;33m New value = %u\n\033[0m",val);
       p->val = val;
-      return false;
+      //return false;
+      flag = 1;
     }
     p = p->next;
   }
-  return true;
+  //return true;
+  return flag;
 }
