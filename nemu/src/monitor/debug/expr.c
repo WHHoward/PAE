@@ -274,7 +274,7 @@ int check_parentheses(int p,int q)
     if(tokens[i].type == '(') layer++;
     else if(tokens[i].type == ')') layer--;
   }
-  if(res != 0) return 0;
+  if(layer != 0) return 0;
   return res;
 }
 
