@@ -33,8 +33,8 @@ void display_watchpoints()
       num /= 10;
       len++;
     }
-//    printf("%d\t%s\t%d\n",p->NO,p->expr,p->val);
-    printf("%-16d%u(0x%-8x)%*s%s\n",p->NO,p->expr,p->val,20 - len," ",p->expr);
+    printf("%d\t%s\t%d\n",p->NO,p->expr,p->val);
+//    printf("%-16d%u(0x%-8x)%*s%s\n",p->NO,p->val,p->val,20 - len," ",p->expr);
     p = p->next;
   }
   printf("\033[0m");
