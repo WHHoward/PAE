@@ -93,6 +93,7 @@ bool check_wp()
   WP *p = head;
   bool success = true;
   int flag = 0;
+  printf("check_wp\n");
   while(p != NULL)
   {
     uint32_t val = expr(p->expr,&success);
