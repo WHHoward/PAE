@@ -7,7 +7,7 @@
 #include <regex.h>
 uint32_t isa_reg_str2val(const char *s, bool *success);
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_NOTEQ,TK_DECIMAL,TK_OR,TK_LESSEQ,TK_GREATEREQ,TK_LESS,TK_GREATER,TK_HEXADECIMAL,TK_AND,TK_REG
+  TK_NOTYPE = 256, TK_EQ,TK_NOTEQ,TK_DECIMAL,TK_OR,TK_LESSEQ,TK_GREATEREQ,TK_LESS,TK_GREATER,TK_HEXADECIMAL,TK_AND,TK_REG,TK_DEFERENCE,TK_POSNUM,TK_NEGNUM
 
   /* TODO: Add more token types */
 
@@ -39,7 +39,7 @@ static struct rule {
   {">=", TK_GREATEREQ},         // greater or equal
   {"<", TK_LESS},         // less
   {">", TK_GREATER},         // greater
-  {"\\$[a-zA-Z]+", TK_REG}         // register
+  {"\\$(\\$0|ra|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG}         // register
   
 };
 
@@ -129,6 +129,9 @@ static bool make_token(char *e) {
 }
 int op_precedence(int op) {
   switch(op) {
+    case TK_NEGNUM:
+    case TK_POSNUM: return 1;
+    case TK_DEFERENCE: return 2;
     case '+':
     case '-':
       return 4;
@@ -195,7 +198,7 @@ uint32_t findmainop(int p,int q,bool *success)
       }
     }
   }
-  if(layer != 0)
+  if(layer != 0 || precedence == 0)
   {
     printf("\033[0;33m bad expression at [%d %d]\033[0m\n",p,q);
     *success = false;
@@ -244,16 +247,33 @@ uint32_t calc(int pos, bool *success)
 int check_parentheses(int p,int q)
 {
   int layer = 0;
-  int res = 0;
-  if(tokens[p].type != '(' || tokens[q].type != ')') return 0;
-  res = 1;
-  for(int i = p + 1; i < q; i++)
+  int res = -1;
+  if(tokens[p].type == '(' && tokens[q].type == ')')
   {
+    res = 1;
+    for(int i = p + 1; i < q; i++)
+    {
+      if(tokens[i].type == '(') layer++;
+      else if(tokens[i].type == ')') layer--;
+      if(layer < 0)
+      {
+        res = -1;
+        break;
+      }
+    }
+  }
+  layer = 0;
+  for(int i = p; i <= q; i++)
+  {
+    if(layer < 0)
+    {
+      res = 0;
+      break;
+    }
     if(tokens[i].type == '(') layer++;
     else if(tokens[i].type == ')') layer--;
-    if(layer < 0) return 0;
-    if(layer == 0 && i != q) return 0;
   }
+  if(res != 0) return 0;
   return res;
 }
 
@@ -278,10 +298,15 @@ uint32_t eval(int p,int q,bool *success)
       return calc(p,success);
     }
   }
-  else if(check_parentheses(p,q) != 0)
+  int check_p = check_parentheses(p,q);
+  if(check_p != -1)
   {
-    printf("Bad expression at [%d %d] for !check_parentheses\n",p,q);
-    *success = false;
+    if(check_p == 0)
+    {
+      printf("Bad expression at [%d %d] for !check_parentheses\n",p,q);
+      *success = false;
+      return 0;
+    }
     return eval(p + 1,q - 1,success);
   }
   else
@@ -306,7 +331,14 @@ uint32_t eval(int p,int q,bool *success)
       case '+': return val1 + val2;
       case '-': return val1 - val2;
       case '*': return val1 * val2;
-      case '/': return val1 / val2;
+      case '/': //return val1 / val2;
+        if(val2 == 0)
+        {
+          printf("\033[0;33m bad expression at [%d %d]\033[0m\n",p,q);
+          *success = false;
+          return 0;
+        }
+        return val1 / val2;
       case TK_EQ: return val1 == val2;
       case TK_NOTEQ: return val1 != val2;
       case TK_AND: return val1 && val2;
@@ -331,6 +363,22 @@ uint32_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
+  for(int i = 0; i < nr_token; i++)
+  {
+    if(tokens[i].type == '*' && (i == 0 || (tokens[i - 1].type != TK_DECIMAL && tokens[i - 1].type != TK_HEXADECIMAL && tokens[i - 1].type != TK_REG && tokens[i - 1].type != ')')))
+    {
+      tokens[i].type = TK_DEFERENCE;
+    }
+    if(tokens[i].type == '-' && (i == 0 || (tokens[i - 1].type != TK_DECIMAL && tokens[i - 1].type != TK_HEXADECIMAL && tokens[i - 1].type != TK_REG && tokens[i - 1].type != ')')))
+    {
+      tokens[i].type = TK_NEGNUM;
+    }
+    if(tokens[i].type == '+' && (i == 0 || (tokens[i - 1].type != TK_DECIMAL && tokens[i - 1].type != TK_HEXADECIMAL && tokens[i - 1].type != TK_REG && tokens[i - 1].type != ')')))
+    {
+      tokens[i].type = TK_POSNUM;
+    }
+  }
+  *success = true;
   return eval(0,nr_token - 1,success);
-  return 0;
+//  return 0;
 }

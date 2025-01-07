@@ -132,60 +132,43 @@ static int cmd_exp(char *args) {
   return 0;
 }
 static int cmd_scan(char *args) {
-  char *arg1 = strtok(NULL, " ");
-  char *arg2 = strtok(NULL, " ");
-  if(arg1 == NULL || arg2 == NULL) {
-    printf("Please input the arguments\n");
-    return 0;
-  }
   bool success = true;
-  uint32_t n = expr(arg1, &success);
+  uint32_t n = expr(args, &success);
   if(!success) {
     printf("Invalid expression\n");
     return 0;
   }
-  uint32_t m = expr(arg2, &success);
-  if(!success) {
-    printf("Invalid expression\n");
-    return 0;
-  }
-  for(uint32_t i = 0; i < m; i++) {
-    if(i % 4 == 0) {
-      printf("\n");
-      printf("0x%08x: ", n + i);
-    }
-    printf("0x%08x ", vaddr_read(n + i, 4));
-  }
-  printf("\n");
-  return 0;
+  printf("\033[0;32m %s = %d(%#x)\033[0m\n", args, n, n);
 }
 static int cmd_setWatchPoints(char *args) {
-/*  if(args == NULL) {
+  if(args == NULL) {
     printf("Please input the expression\n");
     return 0;
   }
   bool success = true;
+  printf("args = %s\n", args);
   uint32_t res = expr(args, &success);
   if(success) {
     WP *wp = new_wp();
     wp->val = res;
     printf("Set watchpoint %d at %s\n", wp->NO, args);
   }
- */ 
   return 0;
 }
 static int cmd_delWatchPoints(char *args) {
-  /*
-  if(args == NULL) {
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
     printf("Please input the watchpoint number\n");
     return 0;
   }
   int n = 0;
-  for(int i = 0; i < strlen(args); i++) {
-    n = n * 10 + args[i];
+  bool success = true;
+  n = expr(arg, &success);
+  if(!success) {
+    printf("Invalid expression\n");
+    return 0;
   }
   free_wp(n);
-  */
   return 0;
 }
 void ui_mainloop(int is_batch_mode) {
