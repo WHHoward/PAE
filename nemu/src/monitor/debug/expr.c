@@ -348,6 +348,9 @@ uint32_t eval(int p,int q,bool *success)
       case TK_GREATEREQ: return val1 >= val2;
       case TK_LESS: return val1 < val2;
       case TK_GREATER: return val1 > val2;
+      case TK_DEFERENCE: return vaddr_read(val2,4);
+      case TK_POSNUM: return val2;
+      case TK_NEGNUM: return -val2;
       default:
         printf("\033[0;33m bad expression at [%d %d]\033[0m\n",p,q);
         *success = false;
