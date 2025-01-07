@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
   /* Receive commands from user. */
   ui_mainloop(is_batch_mode);
-  u_int32_t ans , result = 0;
+/*  u_int32_t ans , result = 0;
   char str[65536];
   bool success = true;
   FILE *fp = fopen("tools/gen-expr/input","r");
@@ -37,5 +37,6 @@ int main(int argc, char *argv[]) {
     result = 0;
     memset(str,0,sizeof(str));
   }
+*/  
   return 0;
 }
