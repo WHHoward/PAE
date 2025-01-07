@@ -173,6 +173,7 @@ static int cmd_setWatchPoints(char *args) {
   if(success) {
     WP *wp = new_wp();
     wp->val = res;
+    strcpy(wp->expr, args);
     printf("Set watchpoint %d at %s\n", wp->NO, args);
   }
   return 0;
