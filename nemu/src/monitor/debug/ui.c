@@ -132,13 +132,35 @@ static int cmd_exp(char *args) {
   return 0;
 }
 static int cmd_scan(char *args) {
+  //x N EXPR
+  //N is the number of memory to scan
+  //EXPR is the expression to scan
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("Please input the number of memory to scan\n");
+    return 0;
+  }
+  int n = 0;
   bool success = true;
-  uint32_t n = expr(args, &success);
+  n = expr(arg, &success);
   if(!success) {
     printf("Invalid expression\n");
     return 0;
   }
-  printf("\033[0;32m %s = %d(%#x)\033[0m\n", args, n, n);
+  arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("Please input the expression\n");
+    return 0;
+  }
+  uint32_t addr = expr(arg, &success);
+  if(!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
+  for(int i = 0; i < n; i++) {
+    printf("%#x: %#x\n", addr + i * 4, vaddr_read(addr + i * 4, 4));
+  }
+  return 0;
 }
 static int cmd_setWatchPoints(char *args) {
   if(args == NULL) {
