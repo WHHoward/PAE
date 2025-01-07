@@ -1,5 +1,5 @@
 #include "nemu.h"
-
+#include <stdbool.h>
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
@@ -169,6 +169,7 @@ uint32_t findmainop(int p,int q,bool *success)
       if(type == '(')
       {
         layer++;
+        continue;
       }
       else if(type == ')')
       {
