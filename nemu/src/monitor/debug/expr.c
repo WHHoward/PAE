@@ -325,7 +325,7 @@ uint32_t eval(int p,int q,bool *success)
     {
       val2 = eval(op + 1,q,success);
     }
-    
+
     if(*success == false) return 0;
     switch(tokens[op].type)
     {

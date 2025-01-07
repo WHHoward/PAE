@@ -96,6 +96,7 @@ bool check_wp()
   while(p != NULL)
   {
     uint32_t val = expr(p->expr,&success);
+    printf("val = %u\n",val);
     if(val != p->val)
     {
       printf("arrived\n");
