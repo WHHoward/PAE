@@ -22,7 +22,7 @@ void init_wp_pool() {
 void display_watchpoints()
 {
   WP *p = head;
-  printf("\033[0;34m]");
+  printf("\033[0;34m");
   printf("Num\tExpr\tValue\n");
   while(p != NULL)
   {
