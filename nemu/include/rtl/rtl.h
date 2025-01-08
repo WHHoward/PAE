@@ -140,13 +140,13 @@ static inline void rtl_not(rtlreg_t *dest, const rtlreg_t* src1) {
 static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
   //TODO();
-  *dest = (int32_t)(*src1);
+  int32_t temp = *src1;
   switch (width) 
   {
-    case 1: *dest = (*dest << 24) >> 24;break;
-    case 2: *dest = (*dest << 16) >> 16; break;
-    case 3: *dest = (*dest << 8) >> 8; break;
-    case 4: *dest = *dest; break;
+    case 1: *dest = (temp << 24) >> 24;break;
+    case 2: *dest = (temp << 16) >> 16; break;
+    case 3: *dest = (temp << 8) >> 8; break;
+    case 4: *dest = temp; break;
     default: assert(0);
   }
 }
