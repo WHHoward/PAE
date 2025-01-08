@@ -42,6 +42,7 @@ make_rtl_arith_logic(shr)
 make_rtl_arith_logic(sar)
 make_rtl_arith_logic(mul_lo)
 make_rtl_arith_logic(mul_hi)
+make_rtl_arith_logic(mul_hsu)
 make_rtl_arith_logic(imul_lo)
 make_rtl_arith_logic(imul_hi)
 make_rtl_arith_logic(div_q)
@@ -132,12 +133,22 @@ void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret);
 
 static inline void rtl_not(rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- ~src1
-  TODO();
+  //TODO();
+  *dest = ~(*src1);
 }
 
 static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  TODO();
+  //TODO();
+  *dest = (int32_t)(*src1);
+  switch (width) 
+  {
+    case 1: *dest = (*dest << 24) >> 24;break;
+    case 2: *dest = (*dest << 16) >> 16; break;
+    case 3: *dest = (*dest << 8) >> 8; break;
+    case 4: *dest = *dest; break;
+    default: assert(0);
+  }
 }
 
 static inline void rtl_setrelopi(uint32_t relop, rtlreg_t *dest,
@@ -148,12 +159,20 @@ static inline void rtl_setrelopi(uint32_t relop, rtlreg_t *dest,
 
 static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  TODO();
+  //TODO();
+  switch (width)
+  {
+    case 1: *dest = (*src1 >> 7) & 0x1; break;
+    case 2: *dest = (*src1 >> 15) & 0x1; break;
+    case 4: *dest = (*src1 >> 31) & 0x1; break;
+    default: assert(0);
+  }
 }
 
 static inline void rtl_mux(rtlreg_t* dest, const rtlreg_t* cond, const rtlreg_t* src1, const rtlreg_t* src2) {
   // dest <- (cond ? src1 : src2)
-  TODO();
+  //TODO();
+  *dest = *cond ? *src1 : *src2;
 }
 
 #include "isa/rtl.h"
