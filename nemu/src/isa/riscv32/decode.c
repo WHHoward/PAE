@@ -54,24 +54,18 @@ make_DHelper(st) {
 
 make_DHelper(B)
 {
-  int32_t offset = (decinfo.isa.instr.simm12 << 12) | (decinfo.isa.instr.imm11 << 11) | (decinfo.isa.instr.imm10_5 << 5) | (decinfo.isa.instr.imm4_1 << 1);
-  offset = (offset << 19) >> 19;
-  decode_op_i(id_src, offset, true);
-  decode_op_r(id_src2, decinfo.isa.instr.rs1, true);
-
+  decode_op_r(id_src, decinfo.isa.instr.rs1, true);
+  decode_op_r(id_src2, decinfo.isa.instr.rs2, true);
+  s0 = (decinfo.isa.instr.imm11 << 11) | (decinfo.isa.instr.imm10_5 << 5) | (decinfo.isa.instr.imm4_1 << 1) | (decinfo.isa.instr.simm12 << 12);
+  s0 = (uint32_t)((int32_t)(s0 << 19) >> 19);
   //print_Dop(id_src->str, OP_STR_SIZE, "0x%x", offset);
-
-  rtl_add(&id_src->addr, &cpu.pc, &id_src->val);
-  rtl_add(&id_src->addr, &id_src->addr, &id_src->val);
-
-  decinfo.is_jmp = true;
-  decinfo.jmp_pc = id_src->addr;
+  rtl_add(&decinfo.jmp_pc, &cpu.pc, &s0);
 }
 
 make_DHelper(I)
 {
   decode_op_r(id_src, decinfo.isa.instr.rs1, true);
-  decode_op_i(id_src2, decinfo.isa.instr.simm11_0, true);
+  decode_op_i(id_src2, (decinfo.isa.instr.simm11_0 << 20) >> 20, true);
   decode_op_r(id_dest, decinfo.isa.instr.rd, false);
 
   //print_Dop(id_src->str, OP_STR_SIZE, "%d(%s)", id_src2->val, reg_name(id_src->reg, 4));
@@ -88,24 +82,16 @@ make_DHelper(R)
 
 make_DHelper(J)
 {
-  int32_t offset = (decinfo.isa.instr.simm20 << 20) | (decinfo.isa.instr.imm19_12 << 12) | (decinfo.isa.instr.imm11_ << 11) | (decinfo.isa.instr.imm10_1 << 1);
-  offset = (offset << 11) >> 11;
-  decode_op_i(id_src, offset, true);
+  s0 = (decinfo.isa.instr.imm19_12 << 12) | (decinfo.isa.instr.imm11 << 11) | (decinfo.isa.instr.imm10_1 << 1) | (decinfo.isa.instr.simm20 << 20);
+  s0 = (uint32_t)((int32_t)(s0 << 11) >> 11);
+  decode_op_i(id_src, s0, true);
   decode_op_r(id_dest, decinfo.isa.instr.rd, false);
-
-  //print_Dop(id_src->str, OP_STR_SIZE, "0x%x", offset);
-
-  rtl_add(&id_src->addr, &cpu.pc, &id_src->val);
-  rtl_add(&id_src->addr, &id_src->addr, &id_src->val);
-
-  decinfo.is_jmp = true;
-  decinfo.jmp_pc = id_src->addr;
 }
 
 make_DHelper(system)
 {
   t0 = 4;
   rtl_add(&decinfo.jmp_pc, &t0, &decinfo.isa.sepc);
+  decode_op_r(id_dest, decinfo.isa.instr.rd, false);
   decode_op_r(id_src, decinfo.isa.instr.rs1, true);
-  decode_op_r(id_src2, decinfo.isa.instr.rd, true);
 }
