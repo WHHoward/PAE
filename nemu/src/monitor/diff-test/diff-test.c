@@ -136,3 +136,21 @@ void difftest_attach() {
 
   isa_difftest_attach();
 }
+
+void diff_take_snapshot(char *filename) {
+  FILE *fp = fopen(filename, "wb");
+  assert(fp);
+  int __unused __attribute__((unused));
+  __unused = fwrite(&cpu, sizeof(cpu), 1, fp);
+  __unused = fwrite(guest_to_host(0), PMEM_SIZE, 1, fp);
+  fclose(fp);
+}
+
+void diff_recoversnapshot(char *filename) {
+  FILE *fp = fopen(filename, "rb");
+  assert(fp);
+  int __unused __attribute__((unused));
+  __unused = fread(&cpu, sizeof(cpu), 1, fp);
+  __unused = fread(guest_to_host(0), PMEM_SIZE, 1, fp);
+  fclose(fp);
+}

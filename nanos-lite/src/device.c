@@ -1,8 +1,12 @@
 #include "common.h"
 #include <amdev.h>
-
+extern int screen_width();
+extern int screen_height();
 size_t serial_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  for (size_t i = 0; i < len; i++) {
+    _putc(((char *)buf)[i]);
+  }
+  return len;
 }
 
 #define NAME(key) \
@@ -14,20 +18,40 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  int key = read_key();
+  if(key == _KEY_NONE)
+  {
+    len = sprintf(buf, "t %u\n", uptime());
+  }
+  else if(key & 0x8000)
+  {
+    key ^= 0x8000;
+    len = sprintf(buf, "kd %s\n", keyname[key]);
+  }
+  else
+  {
+    len = sprintf(buf, "ku %s\n", keyname[key]);
+  }
+  return len;
 }
 
 static char dispinfo[128] __attribute__((used)) = {};
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  len = sprintf(buf, "%s", dispinfo + offset);
+  return len;
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  int x = (offset / 4) % screen_width();
+  int y = (offset / 4) / screen_width();
+  draw_rect((uint32_t *)buf, x, y, len / 4, 1);
+  return len;
+  //return 0;
 }
 
 size_t fbsync_write(const void *buf, size_t offset, size_t len) {
+  draw_sync();
   return 0;
 }
 
@@ -37,4 +61,9 @@ void init_device() {
 
   // TODO: print the string to array `dispinfo` with the format
   // described in the Navy-apps convention
+  sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d\n", screen_width(), screen_height());
+}
+
+size_t get_dispinfo_size() {
+  return strlen(dispinfo);
 }

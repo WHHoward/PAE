@@ -10,6 +10,8 @@
 void cpu_exec(uint64_t);
 void display_watchpoints();
 void isa_reg_display();
+void diff_take_snapshot(char *filename);
+void diff_recoversnapshot(char *filename);
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -46,6 +48,10 @@ static int cmd_scan(char *args);
 static int cmd_setWatchPoints(char *args);
 //delete watchpoint
 static int cmd_delWatchPoints(char *args);
+
+static int cmd_save(char *args);
+
+static int cmd_recover(char *args);
 static struct {
   char *name;
   char *description;
@@ -60,11 +66,33 @@ static struct {
   { "p", "Expression evaluation", cmd_exp },
   { "w", "Set watchpoints", cmd_setWatchPoints },
   { "d", "Delete watchpoints", cmd_delWatchPoints },
+  { "save", "Save the snapshot", cmd_save },
+  { "recover", "Recover the snapshot", cmd_recover },
   /* TODO: Add more commands */
 
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
+
+static int cmd_save(char *args) {
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("Please input the filename\n");
+    return 0;
+  }
+  diff_take_snapshot(arg);
+  return 0;
+}
+
+static int cmd_recover(char *args) {
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("Please input the filename\n");
+    return 0;
+  }
+  diff_recoversnapshot(arg);
+  return 0;
+}
 
 static int cmd_help(char *args) {
   /* extract the first argument */
