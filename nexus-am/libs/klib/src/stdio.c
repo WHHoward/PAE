@@ -4,8 +4,10 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
+  //return 0;
   va_list ap;
   va_start(ap, fmt);
+//  int cnt = vsprintf(fmt, ap);
   char buf[1024] = {0};
   int cnt = vsprintf(buf, fmt, ap);
   for(int i = 0; i < cnt; i++) {
@@ -16,100 +18,119 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
+//  return 0;
   int cnt = 0;
-  for(int i = 0; fmt[i]; i++) {
-    if(fmt[i] != '%') {
-      out[cnt++] = fmt[i];
+  //% d s c x u 
+  while(*fmt) {
+    if(*fmt != '%') {
+      *out = *fmt;
+      out++;
+      fmt++;
+      cnt++;
     } else {
-      i++;
-      switch(fmt[i]) {
+      fmt++;
+      switch(*fmt) {
         case 'd': {
           int num = va_arg(ap, int);
+          char buf[32] = {0};
+          int i = 0;
           if(num < 0) {
-            out[cnt++] = '-';
+            *out = '-';
+            out++;
             num = -num;
           }
-          char tmp[32] = {0};
-          int len = 0;
           if(num == 0) {
-            tmp[len++] = '0';
+            *out = '0';
+            out++;
+            cnt++;
           }
           while(num) {
-            tmp[len++] = num % 10 + '0';
+            buf[i] = num % 10 + '0';
             num /= 10;
+            i++;
           }
-          for(int j = len - 1; j >= 0; j--) {
-            out[cnt++] = tmp[j];
+          for(int j = i - 1; j >= 0; j--) {
+            *out = buf[j];
+            out++;
+            cnt++;
           }
           break;
         }
         case 's': {
-          const char *str = va_arg(ap, const char *);
-          for(int j = 0; str[j]; j++) {
-            out[cnt++] = str[j];
+          char *str = va_arg(ap, char *);
+          while(*str) {
+            *out = *str;
+            out++;
+            str++;
+            cnt++;
           }
           break;
         }
         case 'c': {
-          char ch = va_arg(ap, int);
-          out[cnt++] = ch;
+          char c = va_arg(ap, int);
+          *out = c;
+          out++;
+          cnt++;
           break;
         }
         case 'x': {
           unsigned int num = va_arg(ap, unsigned int);
-          if(num < 0){
-            out[cnt++] = '-';
-            num = -num;
-          }
-          char tmp[32] = {0};
-          int len = 0;
+          char buf[32] = {0};
+          int i = 0;
           if(num == 0) {
-            tmp[len++] = '0';
+            *out = '0';
+            out++;
+            cnt++;
           }
           while(num) {
             if(num % 16 < 10) {
-              tmp[len++] = num % 16 + '0';
+              buf[i] = num % 16 + '0';
             } else {
-              tmp[len++] = num % 16 - 10 + 'a';
+              buf[i] = num % 16 - 10 + 'a';
             }
             num /= 16;
+            i++;
           }
-          out[cnt++] = '0';
-          out[cnt++] = 'x';
-          for(int j = len - 1; j >= 0; j--) {
-            out[cnt++] = tmp[j];
+          for(int j = i - 1; j >= 0; j--) {
+            *out = buf[j];
+            out++;
+            cnt++;
           }
           break;
         }
         case 'u': {
           unsigned int num = va_arg(ap, unsigned int);
-          if(num < 0){
-            out[cnt++] = '-';
-            num = -num;
-          }
-          char tmp[32] = {0};
-          int len = 0;
+          char buf[32] = {0};
+          int i = 0;
           if(num == 0) {
-            tmp[len++] = '0';
+            *out = '0';
+            out++;
+            cnt++;
           }
           while(num) {
-            tmp[len++] = num % 10 + '0';
+            buf[i] = num % 10;
             num /= 10;
-          }
-          for(int j = len - 1; j >= 0; j--) {
-            out[cnt++] = tmp[j];
+            i++;
+            }
+          for(int j = i - 1; j >= 0; j--) {
+            *out = buf[j];
+            out++;
+            cnt++;
           }
           break;
         }
         default: break;
       }
+      fmt++;
     }
   }
-  out[cnt] = '\0';
+  *out = '\0';
   return cnt;
 }
 
+
 int sprintf(char *out, const char *fmt, ...) {
+  //return 0;
   va_list ap;
   va_start(ap, fmt);
   int cnt = vsprintf(out, fmt, ap);
@@ -118,11 +139,13 @@ int sprintf(char *out, const char *fmt, ...) {
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
+  //return 0;
   va_list ap;
   va_start(ap, fmt);
   int cnt = vsprintf(out, fmt, ap);
   va_end(ap);
-  if(cnt > n) {
+  if(cnt > n)
+  {
     out[n] = '\0';
     return n;
   }
