@@ -9,17 +9,22 @@ _Context* __am_irq_handle(_Context *c) {
   if (user_handler) {
     _Event ev = {0};
     switch (c->cause) {
-      case -1: ev.event = _EVENT_YIELD; break;
-      //exit yield open read write close lseek brk execve
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 7:
-      case 8:
-      case 9:
-      case 13: ev.event = _EVENT_SYSCALL; break;
+      // 自陷异常
+      case -1: 
+        ev.event = _EVENT_YIELD;
+        break;
+      // 系统调用
+      case 0: // SYS_exit
+      case 1: // SYS_yield
+      case 2: // SYS_open
+      case 3: // SYS_read
+      case 4: // SYS_write
+      case 7: // SYS_close
+      case 8: // SYS_lseek
+      case 9: // SYS_brk
+      case 13:// SYS_execve
+        ev.event = _EVENT_SYSCALL;
+        break;
       default: ev.event = _EVENT_ERROR; break;
     }
 

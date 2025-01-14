@@ -2,7 +2,7 @@
 #include <amdev.h>
 #include <nemu.h>
 
-static uint32_t boot_time = 0;
+static uint32_t boot_time;
 size_t __am_timer_read(uintptr_t reg, void *buf, size_t size) {
   switch (reg) {
     case _DEVREG_TIMER_UPTIME: {
